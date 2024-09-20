@@ -1,4 +1,4 @@
-import { cart, removeFromCart } from "../data/cart.js";
+import { cart, removeFromCart, calculateCartQuantity, updateQuantity } from "../data/cart.js";
 import { products } from "../data/products.js";
 
 let cartSummaryHTML = "";
@@ -32,14 +32,25 @@ cart.forEach((cartItem) => {
                 <div class="product-price">
                   $${(matchingProduct.priceCents / 100).toFixed(2)}
                 </div>
+
+
                 <div class="product-quantity">
-                  <span>
-                    Quantity:  
-                    ${cartItem.quantity}
-                  </span>
-                  <span class="update-quantity-link link-primary">
+                             <span>
+                               Quantity: 
+                               <span class="quantity-label js-quantity-label-${matchingProduct.id}">
+                               ${cartItem.quantity}
+                            </span>
+
+
+                  <span class="update-quantity-link link-primary js-update-link" data-product-id=${
+                    matchingProduct.id}>
                     Update
                   </span>
+                  <input class="quantity-input js-quantity-input-${matchingProduct.id}">
+                  <span class="save-quantity-link link-primary js-save-link" data-product-id=${
+                    matchingProduct.id
+                  }>
+                    Save
                   <span class="delete-quantity-link link-primary js-delete-link" data-product-id=${
                     matchingProduct.id
                   }>
@@ -105,5 +116,52 @@ document.querySelectorAll(".js-delete-link").forEach((link) => {
     console.log(productId);
     removeFromCart(productId);
     document.querySelector(`.js-cart-item-container-${productId}`).remove();
+    updateCartQuantity();
   });
 });
+function updateCartQuantity() {
+  const cartQuantity = calculateCartQuantity();
+
+  document.querySelector('.js-return-to-home-link')
+    .innerHTML = `${cartQuantity} items`;
+}
+
+updateCartQuantity();
+
+document.querySelectorAll('.js-update-link')
+  .forEach((link) => {
+    link.addEventListener('click', () => {
+      const productId = link.dataset.productId;
+      
+      const container = document.querySelector(
+        `.js-cart-item-container-${productId}`
+      );
+      container.classList.add('is-editing-quantity');
+    });
+  });
+
+  document.querySelectorAll('.js-save-link')
+  .forEach((link) => {
+    link.addEventListener('click', () => {
+      const productId = link.dataset.productId;
+
+      const container = document.querySelector(
+        `.js-cart-item-container-${productId}`
+      );
+      container.classList.remove('is-editing-quantity');
+
+      const quantityInput = document.querySelector(
+        `.js-quantity-input-${productId}`
+      );
+      console.log(Number(quantityInput.value));
+      const newQuantity = Number(quantityInput.value);
+      
+      updateQuantity(productId, newQuantity);
+      const quantityLabel = document.querySelector(
+        `.js-quantity-label-${productId}`
+      );
+      quantityLabel.innerHTML = newQuantity;
+
+      updateCartQuantity();
+    });
+  });
