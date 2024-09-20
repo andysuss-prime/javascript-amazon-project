@@ -28,7 +28,7 @@ cart.forEach((cartItem) => {
       matchingProduct.id
     }">
             <div class="delivery-date">
-              Delivery date: Tuesday, June 21
+              Delivery date:    ${deliveryDate1}
             </div>
 
             <div class="cart-item-details-grid">
