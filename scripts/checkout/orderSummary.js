@@ -5,12 +5,13 @@ import {
   updateQuantity,
   updateDeliveryOption,
 } from "../../data/cart.js";
-import { products } from "../../data/products.js";
+import { products, getProduct } from "../../data/products.js";
 import dayjs from "https://unpkg.com/dayjs@1.11.10/esm/index.js";
 import {
   deliveryOptions,
   getDeliveryOption,
 } from "../../data/deliveryOptions.js";
+import { renderPaymentSummary } from "./paymentSummary.js";
 
 export function renderOrderSummary() {
   let cartSummaryHTML = "";
@@ -23,13 +24,9 @@ export function renderOrderSummary() {
     const today = dayjs();
     const deliveryDate = today.add(deliveryOption.deliveryDays, "days");
     const dateString = deliveryDate.format("dddd, MMMM D");
-    console.log(deliveryDate);
-    let matchingProduct;
-    products.forEach((product) => {
-      if (product.id === productId) {
-        matchingProduct = product;
-      }
-    });
+
+    const matchingProduct = getProduct(productId);
+
     cartSummaryHTML += `
           <div class="cart-item-container js-cart-item-container-${
             matchingProduct.id
@@ -131,6 +128,7 @@ export function renderOrderSummary() {
   }
   //console.log(cartSummaryHTML2);
   document.querySelector(".js-order-summary").innerHTML = cartSummaryHTML;
+
   document.querySelectorAll(".js-delete-link").forEach((link) => {
     link.addEventListener("click", () => {
       const productId = link.dataset.productId;
@@ -138,6 +136,7 @@ export function renderOrderSummary() {
       removeFromCart(productId);
       document.querySelector(`.js-cart-item-container-${productId}`).remove();
       updateCartQuantity();
+      renderPaymentSummary();
     });
   });
   function updateCartQuantity() {
@@ -183,6 +182,7 @@ export function renderOrderSummary() {
       quantityLabel.innerHTML = newQuantity;
 
       updateCartQuantity();
+      renderPaymentSummary();
     });
   });
   document.querySelectorAll(".js-delivery-option").forEach((option) => {
@@ -192,7 +192,9 @@ export function renderOrderSummary() {
       const deliveryOptionId = option.dataset.deliveryOptionId;
 
       updateDeliveryOption(productId, deliveryOptionId);
+
       renderOrderSummary();
+      renderPaymentSummary();
     });
   });
 }
