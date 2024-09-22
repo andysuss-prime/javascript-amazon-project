@@ -141,19 +141,9 @@ export function renderOrderSummary() {
 
       removeFromCart(productId);
       document.querySelector(`.js-cart-item-container-${productId}`).remove();
-      //      updateCartQuantity();
       renderPaymentSummary();
     });
   });
-  function updateCartQuantity() {
-    const cartQuantity = calculateCartQuantity();
-
-    document.querySelector(
-      ".js-return-to-home-link"
-    ).innerHTML = `${cartQuantity} items`;
-  }
-
-  //updateCartQuantity();
 
   document.querySelectorAll(".js-update-link").forEach((link) => {
     link.addEventListener("click", () => {
